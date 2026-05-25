@@ -1,0 +1,53 @@
+[project]
+name = "api-autotest"
+version = "0.1.0"
+description = "A Python API automation testing framework based on pytest, with multi-environment support, pluggable auth strategies, and Allure reporting."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "allure-pytest==2.14.3",
+    "click==8.2.1",
+    "glom==24.11.0",
+    "jsonschema==4.24.0",
+    "jsonschema-specifications==2025.4.1",
+    "loguru==0.7.3",
+    "pytest-xdist==3.6.1",
+    "requests==2.32.3",
+    "faker==37.4.0",
+    "pyjwt==2.10.1",
+    "urllib3==2.4.0",
+    "jmespath==1.0.1",
+    "pytest-timeout==2.4.0",
+    "pytest-sugar==1.0.0",
+    "pytest-rerunfailures==15.1",
+    "allure-python-commons==2.14.3",
+    "attrs==25.3.0",
+    "boltons==25.0.0",
+    "certifi==2025.4.26",
+    "charset-normalizer==3.4.2",
+    "execnet==2.1.1",
+    "face==24.0.0",
+    "idna==3.10",
+    "iniconfig==2.1.0",
+    "packaging==25.0",
+    "pluggy==1.6.0",
+    "pytest==8.3.5",
+    "referencing==0.36.2",
+    "rpds-py==0.25.1",
+    "termcolor==3.1.0",
+    "tzdata==2025.2",
+    "pymysql>=1.1.1",
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "gunicorn>=21.2.0",
+    "pydantic>=2.5.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-vs --alluredir=./output/allure-results -n 3 --dist=loadscope --capture=no --timeout=300 --tb=short"
+
+# addopts = "-vs --alluredir=./output/allure-results -n 3 --dist=loadscope --reruns 2 --reruns-delay 3 --capture=no --timeout=300 --tb=short"
+
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = true
+
+testpaths = ["tests"]

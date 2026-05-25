@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试数据构造平台</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            color: #1d1d1f;
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.022em;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 40px 22px;
+        }
+
+        /* 标题 */
+        h1 {
+            font-size: 56px;
+            line-height: 1.07143;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 主卡片 */
+        .flow-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 48px;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.07),
+                0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+        }
+
+        .flow-card:hover {
+            box-shadow:
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .flow-card h3 {
+            font-size: 32px;
+            line-height: 1.125;
+            font-weight: 600;
+            letter-spacing: 0.004em;
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        /* 表单组 */
+        .form-group {
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* 标签 */
+        label {
+            display: block;
+            font-size: 17px;
+            line-height: 1.29412;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            letter-spacing: -0.022em;
+        }
+
+        /* 输入框和选择框 */
+        select,
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            height: 56px;
+            padding: 0 16px;
+            font-size: 17px;
+            line-height: 1.29412;
+            color: #1d1d1f;
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            transition: all 0.15s ease-in-out;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 16px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 48px;
+        }
+
+        select:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        select:disabled {
+            background: #f5f5f7;
+            color: #86868b;
+            cursor: not-allowed;
+        }
+
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            height: 56px;
+            background: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 28px;
+            font-size: 17px;
+            line-height: 1.29412;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            position: relative;
+            overflow: hidden;
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: -0.022em;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #0051d5;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+            transition: transform 0.05s ease-in-out;
+        }
+
+        .btn:disabled {
+            background: #d1d1d6;
+            color: #86868b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 加载动画 */
+        .loading {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 状态指示器 */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 12px;
+            letter-spacing: -0.008em;
+        }
+
+        .status-running {
+            background: #ff9500;
+            color: #ffffff;
+        }
+
+        .status-success {
+            background: #30d158;
+            color: #ffffff;
+        }
+
+        .status-error {
+            background: #ff3b30;
+            color: #ffffff;
+        }
+
+        /* 结果区域 */
+        .result-area {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 24px;
+            border-radius: 12px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 13px;
+            line-height: 1.38462;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-area::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .result-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .result-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 参数部分 */
+        .params-section {
+            background: #fbfbfd;
+            border: 1px solid #e5e5ea;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+
+        .params-section h4 {
+            font-size: 19px;
+            line-height: 1.21053;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 24px;
+            letter-spacing: 0.012em;
+        }
+
+        /* Flow 描述样式 */
+        .flow-description {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #0369a1;
+        }
+
+        .flow-description-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 8px;
+        }
+
+        .param-field {
+            margin-bottom: 24px;
+        }
+
+        .param-field:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 复选框容器 */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin: 0 12px 0 0;
+            accent-color: #007aff;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+            font-size: 17px;
+            line-height: 1.29412;
+            color: #1d1d1f;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 734px) {
+            .container {
+                padding: 32px 16px;
+            }
+
+            h1 {
+                font-size: 40px;
+                line-height: 1.1;
+                margin-bottom: 40px;
+            }
+
+            .flow-card {
+                padding: 32px 24px;
+            }
+
+            .flow-card h3 {
+                font-size: 28px;
+                margin-bottom: 32px;
+            }
+
+            .form-group {
+                margin-bottom: 24px;
+            }
+
+            .params-section {
+                padding: 24px 20px;
+                margin: 24px 0;
+            }
+
+            .params-section h4 {
+                font-size: 17px;
+                margin-bottom: 20px;
+            }
+
+            .param-field {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* 淡入效果 */
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.3s ease-out;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* 微妙的入场动画 */
+        .form-group {
+            opacity: 0;
+            animation: slideInUp 0.3s ease-out forwards;
+        }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 0.1s;
+        }
+
+        .form-group:nth-child(4) {
+            animation-delay: 0.1s;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 必填字段标记 */
+        .required {
+            color: #ff3b30;
+            margin-left: 4px;
+        }
+
+        /* 描述文字 */
+        .description {
+            font-weight: 400;
+            color: #86868b;
+            margin-left: 8px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>测试数据构造平台</h1>
+
+            <div class="flow-card">
+
+                <div class="form-group">
+                    <label for="business">业务模块</label>
+                    <select v-model="selectedBusiness" @change="loadFlows">
+                        <option value="">请选择业务模块</option>
+                        <option v-for="business in businesses" :key="business" :value="business">
+                            {{ getBusinessDisplayName(business) }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="environment">运行环境</label>
+                    <select v-model="selectedEnvironment">
+                        <option value="test">测试环境</option>
+                        <option value="prod">生产环境</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="flow">Flow</label>
+                    <select v-model="selectedFlow" :disabled="!selectedBusiness" @change="loadFlowSchema">
+                        <option value="">请选择 Flow</option>
+                        <option v-for="flow in flows" :key="flow.name" :value="flow.name">
+                            {{ flow.name }}
+                        </option>
+                    </select>
+                </div>
+
+
+                <!-- 动态参数表单 -->
+                <div v-if="flowSchema" class="fade-in">
+                    <!-- Flow 描述 -->
+                    <div v-if="flowSchema && flowSchema.description" class="flow-description">
+                        <h4>Flow 说明</4>
+                            <div>{{ flowSchema.description }}</div>
+                    </div>
+                    <div class="params-section">
+                        <!-- 当参数为空时显示提示 -->
+                        <div v-if="!flowSchema.properties || Object.keys(flowSchema.properties).length === 0">
+                            <div>*本 flow 执行无需额外参数</div>
+                        </div>
+                        <!-- 当有参数时正常展示 -->
+                        <div v-else>
+                            <div v-for="(prop, key) in flowSchema.properties" :key="key" class="param-field">
+                                <label :for="key">
+                                    <!-- 根据 schema 中的 required 字段判断是否为必填 -->
+                                    <span v-if="flowSchema.required && flowSchema.required.includes(key)"
+                                        class="required">*</span>
+                                    {{ key }}
+                                    <span v-if="prop.description" class="description">
+                                        {{ prop.description }}
+                                    </span>
+                                </label>
+
+                                <!-- 字符串类型输入框 -->
+                                <input v-if="prop.type === 'string'" :id="key" v-model="flowParams[key]" type="text"
+                                    :placeholder="`请输入 ${key}`"
+                                    :required="flowSchema.required && flowSchema.required.includes(key)" />
+
+                                <!-- 数字类型输入框 -->
+                                <input v-else-if="prop.type === 'number'" :id="key" v-model.number="flowParams[key]"
+                                    type="number" :placeholder="`请输入 ${key}`"
+                                    :required="flowSchema.required && flowSchema.required.includes(key)" />
+
+                                <!-- 布尔类型复选框 -->
+                                <div v-else-if="prop.type === 'boolean'" class="checkbox-container">
+                                    <input :id="key" v-model="flowParams[key]" type="checkbox"
+                                        :required="flowSchema.required && flowSchema.required.includes(key)" />
+                                    <label :for="key">{{ prop.description || key }}</label>
+                                </div>
+
+                                <!-- 其他类型默认文本输入 -->
+                                <input v-else :id="key" v-model="flowParams[key]" type="text"
+                                    :placeholder="`请输入 ${key}`"
+                                    :required="flowSchema.required && flowSchema.required.includes(key)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" @click="executeFlow" :disabled="!isFormValid || isRunning">
+                    <span v-if="isRunning" class="loading"></span>
+                    {{ isRunning ? '执行中...' : '执行 Flow' }}
+                    <span v-if="lastStatus" :class="'status status-' + lastStatus">{{ statusText[lastStatus] }}</span>
+                </button>
+
+                <div v-if="results.length > 0" class="result-area">{{ results.join('\n') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    businesses: [],
+                    flows: [],
+                    selectedBusiness: '',
+                    selectedEnvironment: 'test',  // 默认选择测试环境
+                    selectedFlow: '',
+                    flowSchema: null,
+                    flowParams: {},
+                    isRunning: false,
+                    results: [],
+                    lastStatus: '',
+                    statusText: {
+                        running: '运行中',
+                        success: '成功',
+                        error: '失败'
+                    },
+                    // 业务模块显示名称映射
+                    businessDisplayNames: {
+                        'httpbin': 'Httpbin'
+                    }
+                };
+            },
+            computed: {
+                isFormValid() {
+                    // 检查是否选择了业务模块和Flow
+                    if (!this.selectedBusiness || !this.selectedFlow) {
+                        return false;
+                    }
+
+                    // 如果没有参数，表单有效
+                    if (!this.flowSchema || !this.flowSchema.properties) {
+                        return true;
+                    }
+
+                    // 检查必填字段是否已填写
+                    if (this.flowSchema.required && Array.isArray(this.flowSchema.required)) {
+                        for (const requiredField of this.flowSchema.required) {
+                            const value = this.flowParams[requiredField];
+                            // 对于字符串类型，检查是否为空字符串
+                            if (typeof value === 'string' && value.trim() === '') {
+                                return false;
+                            }
+                            // 对于数字类型，检查是否为有效数字
+                            if (typeof value === 'number' && isNaN(value)) {
+                                return false;
+                            }
+                            // 对于布尔类型，总是有效
+                            // 对于其他类型，检查是否为null或undefined或空字符串
+                            if (value === null || value === undefined || value === '') {
+                                return false;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            async mounted() {
+                await this.loadBusinesses();
+            },
+            methods: {
+                // 获取业务模块的显示名称
+                getBusinessDisplayName(businessKey) {
+                    // 如果有明确的映射，使用映射
+                    if (this.businessDisplayNames[businessKey]) {
+                        return this.businessDisplayNames[businessKey];
+                    }
+
+                    // 否则，进行智能格式化
+                    // 将首字母大写，剩余小写
+                    return businessKey.charAt(0).toUpperCase() + businessKey.slice(1).toLowerCase();
+                },
+                async loadBusinesses() {
+                    try {
+                        const response = await axios.get('/api/apps');
+                        this.businesses = response.data.data;
+                    } catch (error) {
+                        console.error('加载业务模块失败:', error);
+                        this.results = ['加载业务模块失败: ' + error.message];
+                    }
+                },
+                async loadFlows() {
+                    if (!this.selectedBusiness) {
+                        this.flows = [];
+                        this.flowSchema = null;
+                        this.flowParams = {};
+                        return;
+                    }
+
+                    try {
+                        const response = await axios.get(`/api/flows/${this.selectedBusiness}`);
+                        this.flows = response.data.data; // 保持完整的flow对象数组
+                        this.selectedFlow = '';
+                        this.flowSchema = null;
+                        this.flowParams = {};
+                    } catch (error) {
+                        console.error('加载 Flow 失败:', error);
+                        this.results = ['加载 Flow 失败: ' + error.message];
+                    }
+                },
+                async loadFlowSchema() {
+                    if (!this.selectedBusiness || !this.selectedFlow) {
+                        this.flowSchema = null;
+                        this.flowParams = {};
+                        return;
+                    }
+
+                    try {
+                        const response = await axios.get(`/api/flows/${this.selectedBusiness}/${this.selectedFlow}/schema`);
+                        this.flowSchema = response.data.data;
+
+                        // 初始化参数对象
+                        this.flowParams = {};
+                        if (this.flowSchema && this.flowSchema.properties) {
+                            for (const [key, prop] of Object.entries(this.flowSchema.properties)) {
+                                // 根据属性类型设置默认值
+                                if (prop.type === 'string') {
+                                    this.flowParams[key] = '';
+                                } else if (prop.type === 'number') {
+                                    this.flowParams[key] = 0;
+                                } else if (prop.type === 'boolean') {
+                                    this.flowParams[key] = false;
+                                } else {
+                                    this.flowParams[key] = '';
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('加载 Flow Schema 失败:', error);
+                        this.results = ['加载 Flow Schema 失败: ' + error.message];
+                    }
+                },
+                async executeFlow() {
+                    if (!this.selectedBusiness || !this.selectedFlow) {
+                        alert('请选择业务模块和 Flow');
+                        return;
+                    }
+
+                    this.isRunning = true;
+                    this.lastStatus = 'running';
+                    this.results = ['开始执行 Flow...'];
+
+                    try {
+                        const response = await axios.post(`/api/flows/${this.selectedBusiness}/${this.selectedFlow}/execute`, {
+                            params: this.flowParams,
+                            environment: this.selectedEnvironment  // 添加环境参数
+                        });
+
+                        this.lastStatus = response.data.success ? 'success' : 'error';
+
+                        // 显示执行结果
+                        if (response.data.success) {
+                            const result = response.data.data;
+                            this.results = [
+                                `✅ Flow "${result.flow_name}" 执行成功`,
+                                `🌍 运行环境: ${this.selectedEnvironment.toUpperCase()}`,
+                                `⏱️ 执行时间: ${result.execution_time.toFixed(3)}s`,
+                                `📊 执行结果:`,
+                                JSON.stringify(result.result, null, 2)
+                            ];
+                        } else {
+                            this.results = [
+                                `❌ Flow 执行失败`,
+                                `错误信息: ${response.data.data.error || '未知错误'}`
+                            ];
+                        }
+                    } catch (error) {
+                        this.lastStatus = 'error';
+                        this.results = ['执行失败: ' + (error.response?.data?.detail || error.message)];
+                    } finally {
+                        this.isRunning = false;
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

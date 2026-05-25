@@ -1,0 +1,5 @@
+[host]
+httpbin_host = "https://httpbin.org"
+
+[logging]
+level = "DEBUG"
